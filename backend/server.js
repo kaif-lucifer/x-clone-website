@@ -5,6 +5,7 @@ import { v2 as cloudinary } from 'cloudinary';
 
 import authRoutes from './routes/auth.route.js';
 import userRoutes from './routes/user.route.js';
+import postRoutes from './routes/post.route.js';
 
 import connectMongoDB from './db/connectMongoDb.js';
 
@@ -24,9 +25,10 @@ app.use(express.json()); // to parse req.body
 app.use(express.urlencoded({ extended: true })); // to parse form Data(urlencoded)
 app.use(cookieParser()); // to get cookies in req.cookies.jwt
 
-
+// routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 app.listen(PORT, () => {
 

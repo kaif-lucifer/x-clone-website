@@ -22,7 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
-app.use(express.json()); // to parse req.body
+app.use(express.json({ limit: "5mb" })); // to parse req.body //dont allow bigger value because hacker can attack through DoS attacks by sending large amount of package.
 app.use(express.urlencoded({ extended: true })); // to parse form Data(urlencoded)
 app.use(cookieParser()); // to get cookies in req.cookies.jwt
 

@@ -40,7 +40,7 @@ const Post = ({ post }) => {
     },
   });
 
-  const formattedDate = post.createdAt();
+  const formattedDate = "1h";
 
   const isCommenting = false;
 

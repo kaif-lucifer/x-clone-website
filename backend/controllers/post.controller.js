@@ -39,23 +39,25 @@ export const createPost = async (req, res) => {
 export const likeUnlikePost = async (req, res) => {
     try {
         const userId = req.user._id;
-        const postId = req.params.id;
+        const { id: postId } = req.params;
 
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ error: "Post Not Found" });
 
-        const isLiked = post.likes.includes(userId);
+        const userLikedPost = post.likes.includes(userId);
 
-        if (isLiked) {
+        if (userLikedPost) {
             // Unlike the Post
-            await Post.findByIdAndUpdate(postId, { $pull: { likes: userId } });
-            await User.findByIdAndUpdate(userId, { $pull: { likedPosts: postId } });
+            await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+            await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
 
-            res.status(200).json({ message: "Post Unliked successfully" });
+            const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
+            res.status(200).json(updatedLikes);
         } else {
             // Like the Post
-            await Post.findByIdAndUpdate(postId, { $push: { likes: userId } });
-            await User.findByIdAndUpdate(userId, { $push: { likedPosts: postId } });
+            post.likes.push(userId);
+            await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
+            await post.save();
 
             // Send notification to the user
             const newNotification = new Notification({
@@ -65,8 +67,10 @@ export const likeUnlikePost = async (req, res) => {
             })
 
             await newNotification.save();
+
+            const updatedLikes = post.likes;
             // TODO: return the id of the user as a response
-            res.status(200).json({ message: " Post Liked successfully" });
+            res.status(200).json(updatedLikes);
         }
 
     } catch (error) {

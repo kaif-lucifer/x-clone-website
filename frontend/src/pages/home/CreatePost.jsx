@@ -47,6 +47,7 @@ const CreatePost = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isPending) return;
     createPostMutation({ text, img });
   };
 

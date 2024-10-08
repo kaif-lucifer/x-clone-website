@@ -90,7 +90,6 @@ const Post = ({ post }) => {
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.error || "Something went wrong");
-
         return data;
       } catch (error) {
         throw new Error(error.message);
@@ -102,9 +101,11 @@ const Post = ({ post }) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
 
       // queryClient.setQueryData(["posts"], (oldData) => {
+      //   // console.log(oldData);
       //   return oldData.map((p) => {
       //     if (p._id === post._id) {
-      //       console.log(post.comments.user);
+      //       console.log(post.comments);
+
       //       return {
       //         ...p,
       //         comments: post.comments,

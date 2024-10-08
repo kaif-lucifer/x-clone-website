@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
@@ -12,6 +12,7 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
+import { formatMemberSinceDate } from "../../utils/db/date/date";
 
 const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
@@ -21,10 +22,31 @@ const ProfilePage = () => {
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
 
-  const isLoading = false;
-  const isMyProfile = true;
+  const { username } = useParams();
 
-  const { data: user } = useQuery({ queryKey: ["authUser"] });
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  const {
+    data: user,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["userProfile"],
+    queryFn: async () => {
+      try {
+        const res = await fetch(`/api/users/profile/${username}`);
+        const data = res.json();
+
+        if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+        return data;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
+  });
+
+  const memberSinceDate = formatMemberSinceDate(user?.createdAt);
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -38,16 +60,20 @@ const ProfilePage = () => {
     }
   };
 
+  useEffect(() => {
+    refetch();
+  }, [username, refetch]);
+
   return (
     <>
       <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
         {/* HEADER */}
-        {isLoading && <ProfileHeaderSkeleton />}
-        {!isLoading && !user && (
+        {isLoading && isRefetching && <ProfileHeaderSkeleton />}
+        {!isLoading && !isRefetching && !user && (
           <p className="text-center text-lg mt-4">User not found</p>
         )}
         <div className="flex flex-col">
-          {!isLoading && user && (
+          {!isLoading && !isRefetching && user && (
             <>
               <div className="flex gap-10 px-4 py-2 items-center">
                 <Link to="/">
@@ -67,7 +93,7 @@ const ProfilePage = () => {
                   className="h-52 w-full object-cover"
                   alt="cover image"
                 />
-                {isMyProfile && (
+                {authUser && (
                   <div
                     className="absolute top-2 right-2 rounded-full p-2 bg-gray-800 bg-opacity-75 cursor-pointer opacity-0 group-hover/cover:opacity-100 transition duration-200"
                     onClick={() => coverImgRef.current.click()}
@@ -101,7 +127,7 @@ const ProfilePage = () => {
                       }
                     />
                     <div className="absolute top-5 right-3 p-1 bg-primary rounded-full group-hover/avatar:opacity-100 opacity-0 cursor-pointer">
-                      {isMyProfile && (
+                      {authUser && (
                         <MdEdit
                           className="w-4 h-4 text-white"
                           onClick={() => profileImgRef.current.click()}
@@ -112,8 +138,8 @@ const ProfilePage = () => {
                 </div>
               </div>
               <div className="flex justify-end px-4 mt-5">
-                {isMyProfile && <EditProfileModal />}
-                {!isMyProfile && (
+                {authUser && <EditProfileModal />}
+                {!authUser && (
                   <button
                     className="btn btn-outline rounded-full btn-sm"
                     onClick={() => alert("Followed successfully")}
@@ -159,7 +185,7 @@ const ProfilePage = () => {
                   <div className="flex gap-2 items-center">
                     <IoCalendarOutline className="w-4 h-4 text-slate-500" />
                     <span className="text-sm text-slate-500">
-                      Joined July 2021
+                      {memberSinceDate}
                     </span>
                   </div>
                 </div>
@@ -201,7 +227,7 @@ const ProfilePage = () => {
             </>
           )}
 
-          <Posts />
+          <Posts feedType={feedType} username={username} userId={user?._id} />
         </div>
       </div>
     </>

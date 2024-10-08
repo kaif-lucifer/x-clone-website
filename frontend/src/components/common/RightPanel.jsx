@@ -7,6 +7,7 @@ import RightPanelSkeleton from "../skeletons/RightPanelSkeletons";
 import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
+  // const { data: userProfile } = useQuery({ queryKey: ["userProfile"] });
   const { data: suggestedUsers, isLoading } = useQuery({
     queryKey: ["suggestedUsers"],
     queryFn: async () => {
@@ -47,6 +48,7 @@ const RightPanel = () => {
                 to={`/profile/${user.username}`}
                 className="flex items-center justify-between gap-4"
                 key={user._id}
+                // onClick={userProfile}
               >
                 <div className="flex gap-2 items-center">
                   <div className="avatar">

@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
@@ -10,7 +11,7 @@ import notificationRoutes from './routes/notification.route.js';
 
 import connectMongoDB from './db/connectMongoDb.js';
 
-import path from 'path';
+
 
 dotenv.config();
 

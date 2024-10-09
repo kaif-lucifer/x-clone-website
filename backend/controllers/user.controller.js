@@ -117,6 +117,14 @@ export const updateUserProfile = async (req, res) => {
             user.password = await bcrypt.hash(newPassword, salt);
         }
 
+        const existingUsername = await User.findOne({ username }).select("username");
+        if (existingUsername && user.username !== username) return res.status(400).json({ error: "Username already exists" });
+
+
+        const existingEmail = await User.findOne({ email }).select("email");
+        if (existingEmail && user.email !== email) return res.status(400).json({ error: "Email is already taken" });
+
+
         if (profileImg) {
             if (user.profileImg) {
                 await cloudinary.uploader.destroy(user.profileImg.split("/").pop().split(".")[0]);
@@ -138,27 +146,19 @@ export const updateUserProfile = async (req, res) => {
         user.link = link || user.link;
         user.profileImg = profileImg || user.profileImg;
         user.coverImg = coverImg || user.coverImg;
-
-
-        const existingUsername = await User.findOne({ username }).select("username");
-
-        if (existingUsername && user.username !== username) return res.status(400).json({ error: "Username already exists" });
-
         user.username = username || user.username;
-
-        const existingEmail = await User.findOne({ email }).select("email");
-        if (existingEmail && user.email !== email) return res.status(400).json({ error: "Email is already taken" });
-
         user.email = email || user.email;
+
+
 
         user = await user.save();
         // password should be null in the response
         user.password = null;
 
-        return res.status(201).json(user);
+        return res.status(200).json(user);
 
     } catch (error) {
-        console.log("Error in followUnfollowUser: ", error.message);
+        console.log("Error in updateUserProfile: ", error.message);
         res.status(500).json({ error: error.message });
     }
 };

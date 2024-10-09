@@ -119,9 +119,7 @@ const EditProfileModal = ({ authUser }) => {
           </form>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button className=" outline-none rounded-full hover:text-grey-500 text-white">
-            close
-          </button>
+          <button className=" outline-none">close</button>
         </form>
       </dialog>
     </>

@@ -139,14 +139,15 @@ export const updateUserProfile = async (req, res) => {
         user.profileImg = profileImg || user.profileImg;
         user.coverImg = coverImg || user.coverImg;
 
+
         const existingUsername = await User.findOne({ username }).select("username");
 
-        if (existingUsername) return res.status(400).json({ error: "Username already exists" });
+        if (existingUsername && user.username !== username) return res.status(400).json({ error: "Username already exists" });
 
         user.username = username || user.username;
 
         const existingEmail = await User.findOne({ email }).select("email");
-        if (existingEmail) return res.status(400).json({ error: "Email is already taken" });
+        if (existingEmail && user.email !== email) return res.status(400).json({ error: "Email is already taken" });
 
         user.email = email || user.email;
 

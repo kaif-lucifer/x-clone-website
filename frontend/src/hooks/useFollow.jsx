@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 const useFollow = () => {
   const queryClient = useQueryClient();
 
-  const { mutate: followUnfollow, isPending } = useMutation({
+  const { mutate: followUnfollow, isLoading: isPending } = useMutation({
     mutationFn: async (usertoFollowId) => {
       try {
-        const res = await fetch(`api/users/follow/${usertoFollowId}`, {
+        const res = await fetch(`/api/users/follow/${usertoFollowId}`, {
           method: "POST",
         });
         const data = res.json();
@@ -18,7 +18,6 @@ const useFollow = () => {
       }
     },
     onSuccess: () => {
-      toast.success("User Followed Successfully");
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["suggestedUsers"] }),
         queryClient.invalidateQueries({ queryKey: ["authUser"] }),
